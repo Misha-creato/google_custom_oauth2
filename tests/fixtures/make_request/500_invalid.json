@@ -1,0 +1,10 @@
+{
+  "method": "get",
+  "url": "invalid_url",
+  "headers": null,
+  "data": null,
+  "mock_status": 500,
+  "mock_content": {
+    "response": "fail"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "method": "get",
+  "url": "some_url",
+  "headers": null,
+  "data": null,
+  "mock_json": {
+    "response": "success"
+  }
+}
