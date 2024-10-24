@@ -1,3 +1,14 @@
 {
-  "id_token": "some_valid_id_token"
+  "headers": {
+    "alg": "RS256",
+    "kid": "c88d809f4db943df53da7accfd47764d05ba391f",
+    "typ": "JWT"
+  },
+  "payload": {
+    "iss": "https://accounts.google.com",
+    "aud": "some_client_id",
+    "exp": "2024-10-24 11:52",
+    "iat": "2024-10-24 11:22",
+    "email": "test@example.com"
+  }
 }
