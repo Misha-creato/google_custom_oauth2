@@ -1,0 +1,14 @@
+{
+  "headers": {
+    "alg": "RS256",
+    "kid": "invalid",
+    "typ": "JWT"
+  },
+  "payload": {
+    "iss": "https://accounts.google.com",
+    "aud": "some_client_id",
+    "exp": "2024-10-24 11:52",
+    "iat": "2024-10-24 11:22",
+    "email": "test@example.com"
+  }
+}
