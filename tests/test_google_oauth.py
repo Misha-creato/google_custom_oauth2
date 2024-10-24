@@ -1,3 +1,8 @@
+from datetime import (
+    datetime,
+    timezone,
+)
+
 import json
 
 import os.path
@@ -8,6 +13,8 @@ from unittest.mock import (
     Mock,
     patch,
 )
+
+import jwt
 
 from google_custom_oauth2.google_oauth import GoogleOAuth
 
@@ -102,13 +109,33 @@ class TestGoogleOAuth(unittest.TestCase):
             )
             self.assertEqual(status, code, msg=fixture)
 
-    @patch('google_custom_oauth2.google_oauth.verify_oauth2_token')
-    def test_verify_id_token(self, mock_verify_oauth2_token):
+    @patch('datetime.datetime')
+    @patch('google_custom_oauth2.google_oauth.jwt.algorithms.RSAAlgorithm.from_jwk')
+    @patch('google_custom_oauth2.google_oauth.GoogleOAuth._make_request')
+    def test_verify_id_token(self,
+                             mock_make_request,
+                             mock_from_jwk,
+                             mock_datetime,
+                             ):
         path = f'{self.path}/verify_id_token'
 
+        with open(f'{path}/google_certs.json', 'r') as file:
+            data = json.load(file)
+
+        mock_make_request.return_value = (200, data)
+
+        with open(f'{path}/private_key.pem', 'r') as file:
+            private_key = file.read()
+
+        with open(f'{path}/public_key.pem', 'r') as file:
+            public_key = file.read()
+
+        mock_from_jwk.return_value = public_key
+        mock_datetime.now.return_value = datetime(2024, 10, 20, 10, 0, tzinfo=timezone.utc)
+        print(datetime.now())
         fixtures = (
             (200, 'valid'),
-            (400, 'invalid'),
+            (400, 'invalid_unverified_header_kid'),
         )
 
         for code, name in fixtures:
@@ -117,12 +144,21 @@ class TestGoogleOAuth(unittest.TestCase):
             with open(f'{path}/{fixture}.json', 'r') as file:
                 data = json.load(file)
 
-            if code == 400:
-                mock_verify_oauth2_token.side_effect = Exception('Test')
-            else:
-                mock_verify_oauth2_token.return_value = 'success'
+            headers = data['headers']
+            payload = data['payload']
+            exp = payload['exp']
+            iat = payload['iat']
+            payload['exp'] = datetime.strptime(exp, '%Y-%m-%d %H:%M')
+            payload['iat'] = datetime.strptime(iat, '%Y-%m-%d %H:%M')
+            print(payload)
+            id_token = jwt.encode(
+                payload=payload,
+                headers=headers,
+                algorithm='RS256',
+                key=private_key,
+            )
 
             status, response = self.oauth.verify_id_token(
-                id_token=data['id_token'],
+                id_token=id_token,
             )
             self.assertEqual(status, code, msg=fixture)
