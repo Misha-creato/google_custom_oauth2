@@ -1,11 +1,9 @@
 import urllib.parse
-
 import requests
-
-from google.oauth2.id_token import verify_oauth2_token
-from google.auth.transport.requests import Request
-
 import logging
+import jwt
+
+from jwt.algorithms import RSAAlgorithm
 
 
 logger = logging.getLogger(__name__)
@@ -16,6 +14,11 @@ class GoogleOAuth:
     token_url = 'https://oauth2.googleapis.com/token'
     auth_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
+    certs_url = 'https://www.googleapis.com/oauth2/v3/certs'
+    issuers = [
+        'accounts.google.com',
+        'https://accounts.google.com',
+    ]
 
     def __init__(self,
                  client_id: str,
@@ -127,10 +130,45 @@ class GoogleOAuth:
         logger.debug(
             msg='ID token verification',
         )
+        status, response = self._make_request(
+            method='get',
+            url=self.certs_url,
+        )
+        if status != 200:
+            logger.error(
+                msg=f'Failed to get Google public keys',
+            )
+            return status, response
+
         try:
-            token_info = verify_oauth2_token(
-                id_token=id_token,
-                request=Request(),
+            unverified_header = jwt.get_unverified_header(id_token)
+        except Exception as exc:
+            logger.error(
+                msg=f'An error occurred while verifying the ID token: {exc}',
+            )
+            return 400, {}
+
+        public_keys = response
+        kid = unverified_header['kid']
+        public_key = None
+        for key in public_keys['keys']:
+            if key['kid'] == kid:
+                public_key = RSAAlgorithm.from_jwk(key)
+                break
+
+        if public_key is None:
+            logger.error(
+                msg=f'The public key for token sign was not found',
+            )
+            return 400, {}
+
+        try:
+            token_info = jwt.decode(
+                jwt=id_token,
+                key=public_key,
+                algorithms=['RS256'],
+                audience=self.client_id,
+                issuer=self.issuers,
             )
         except Exception as exc:
             logger.error(
