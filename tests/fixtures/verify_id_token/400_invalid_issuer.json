@@ -5,7 +5,7 @@
     "typ": "JWT"
   },
   "payload": {
-    "iss": "https://accounts.google.com",
+    "iss": "invalid_issuer",
     "aud": "some_client_id",
     "exp": 30,
     "iat": 0,

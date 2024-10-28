@@ -7,8 +7,8 @@
   "payload": {
     "iss": "https://accounts.google.com",
     "aud": "some_client_id",
-    "exp": "2024-10-23 11:52",
-    "iat": "2024-10-24 11:22",
+    "exp": -30,
+    "iat": -60,
     "email": "test@example.com"
   }
 }
