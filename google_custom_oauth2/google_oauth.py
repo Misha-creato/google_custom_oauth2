@@ -1,6 +1,6 @@
 import urllib.parse
-import requests
 import logging
+import requests
 import jwt
 
 from jwt.algorithms import RSAAlgorithm
@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleOAuth:
-
     token_url = 'https://oauth2.googleapis.com/token'
     auth_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
@@ -32,11 +31,24 @@ class GoogleOAuth:
         self.scope = scope
 
     def _make_request(self,
-                       method: str,
-                       url: str,
-                       headers: dict | None = None,
-                       data: dict | None = None
-                       ) -> (int, dict):
+                      method: str,
+                      url: str,
+                      headers: dict | None = None,
+                      data: dict | None = None
+                      ) -> (int, dict):
+        """
+        Sending a request using the specified method to the specified path with the specified data
+
+        Args:
+            method: request method
+            url: request url
+            headers: request headers
+            data: request data
+
+        Returns:
+            Status code and data dict
+        """
+
         logger.debug(
             msg=f'Sending a {method} request to {url} with {data} data',
         )
@@ -70,6 +82,16 @@ class GoogleOAuth:
         return status, response_data
 
     def get_auth_url(self, state: str) -> str:
+        """
+        Receiving a link for authorization
+
+        Args:
+            state: client state
+
+        Returns:
+            Url
+        """
+
         logger.debug(
             msg='Receiving a link for authorization via Google',
         )
@@ -93,6 +115,16 @@ class GoogleOAuth:
         return auth_url
 
     def exchange_code_for_tokens(self, code: str) -> (int, dict):
+        """
+        Exchange authorization code for access tokens
+
+        Args:
+            code: authorization code
+
+        Returns:
+            Status code and data dict
+        """
+
         logger.debug(
             msg=f'Exchange authorization code {code} for access token',
         )
@@ -112,6 +144,16 @@ class GoogleOAuth:
         return status, response_data
 
     def get_user_info(self, access_token: str) -> (int, dict):
+        """
+        Retrieving user data
+
+        Args:
+            access_token: access token
+
+        Returns:
+            Status code and data dict
+        """
+
         logger.debug(
             msg='Retrieving user data from Google',
         )
@@ -127,6 +169,16 @@ class GoogleOAuth:
         return status, response_data
 
     def verify_id_token(self, id_token: str) -> (int, dict):
+        """
+        ID token verification
+
+        Args:
+            id_token: ID token
+
+        Returns:
+            Status code and data dict
+        """
+
         logger.debug(
             msg='ID token verification',
         )
@@ -136,7 +188,7 @@ class GoogleOAuth:
         )
         if status != 200:
             logger.error(
-                msg=f'Failed to get Google public keys',
+                msg='Failed to get Google public keys',
             )
             return status, response
 
@@ -158,7 +210,7 @@ class GoogleOAuth:
 
         if public_key is None:
             logger.error(
-                msg=f'The public key for token sign was not found',
+                msg='The public key for token sign was not found',
             )
             return 400, {}
 
