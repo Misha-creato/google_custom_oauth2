@@ -1,20 +1,18 @@
 from datetime import (
     datetime,
+    timedelta,
     timezone,
 )
 
 import json
-
+import jwt
 import os.path
-
 import unittest
 
 from unittest.mock import (
     Mock,
     patch,
 )
-
-import jwt
 
 from google_custom_oauth2.google_oauth import GoogleOAuth
 
@@ -109,13 +107,11 @@ class TestGoogleOAuth(unittest.TestCase):
             )
             self.assertEqual(status, code, msg=fixture)
 
-    @patch('datetime.datetime')
     @patch('google_custom_oauth2.google_oauth.jwt.algorithms.RSAAlgorithm.from_jwk')
     @patch('google_custom_oauth2.google_oauth.GoogleOAuth._make_request')
     def test_verify_id_token(self,
                              mock_make_request,
                              mock_from_jwk,
-                             mock_datetime,
                              ):
         path = f'{self.path}/verify_id_token'
 
@@ -131,11 +127,12 @@ class TestGoogleOAuth(unittest.TestCase):
             public_key = file.read()
 
         mock_from_jwk.return_value = public_key
-        mock_datetime.now.return_value = datetime(2024, 10, 20, 10, 0, tzinfo=timezone.utc)
-        print(datetime.now())
+
         fixtures = (
             (200, 'valid'),
             (400, 'invalid_unverified_header_kid'),
+            (400, 'expired'),
+            (400, 'invalid_issuer'),
         )
 
         for code, name in fixtures:
@@ -146,11 +143,12 @@ class TestGoogleOAuth(unittest.TestCase):
 
             headers = data['headers']
             payload = data['payload']
+
             exp = payload['exp']
             iat = payload['iat']
-            payload['exp'] = datetime.strptime(exp, '%Y-%m-%d %H:%M')
-            payload['iat'] = datetime.strptime(iat, '%Y-%m-%d %H:%M')
-            print(payload)
+            payload['exp'] = datetime.now(tz=timezone.utc) + timedelta(minutes=exp)
+            payload['iat'] = datetime.now(tz=timezone.utc) + timedelta(minutes=iat)
+
             id_token = jwt.encode(
                 payload=payload,
                 headers=headers,
