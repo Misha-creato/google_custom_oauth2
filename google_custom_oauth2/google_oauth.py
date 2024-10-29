@@ -5,11 +5,24 @@ import jwt
 
 from jwt.algorithms import RSAAlgorithm
 
-
 logger = logging.getLogger(__name__)
 
 
 class GoogleOAuth:
+    """
+    Auth with Google OAuth2
+
+    Args:
+        client_id: unique identifier of the application registered in
+        the Google API Console
+        client_secret: the secret code of the application registered in
+        the Google API Console
+        redirect_uri: The backend URL that Google will send the user to
+        after successful authentication
+        scope: the permissions on fields your application is requesting
+
+    """
+
     token_url = 'https://oauth2.googleapis.com/token'
     auth_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     user_info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
@@ -90,6 +103,14 @@ class GoogleOAuth:
 
         Returns:
             Url
+            "https://accounts.google.com/o/oauth2/v2/auth?
+             scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly&
+             access_type=offline&
+             include_granted_scopes=true&
+             response_type=code&
+             state=state_parameter_passthrough_value&
+             redirect_uri=https%3A//oauth2.example.com/code&
+             client_id=client_id"
         """
 
         logger.debug(
@@ -123,6 +144,15 @@ class GoogleOAuth:
 
         Returns:
             Status code and data dict
+            200,
+            {
+            'access_token': 'access_token',
+            'expires_in': 1000,
+            'refresh_token': 'refresh_token',
+            'scope': 'https://www.googleapis.com/auth/userinfo.email openid',
+            'token_type': 'Bearer',
+            'id_token': 'id_token'
+            }
         """
 
         logger.debug(
@@ -152,6 +182,13 @@ class GoogleOAuth:
 
         Returns:
             Status code and data dict
+            200,
+            {
+            'id': '12345',
+            'email': 'example@gmail.com',
+            'verified_email': True,
+            'picture': 'https://lh3.googleusercontent.com/picture_path'
+            }
         """
 
         logger.debug(
@@ -177,6 +214,18 @@ class GoogleOAuth:
 
         Returns:
             Status code and data dict
+            200,
+            {
+            'iss': 'https://accounts.google.com',
+            'azp': 'somestring.apps.googleusercontent.com',
+            'aud': 'somestring.apps.googleusercontent.com',
+            'sub': '118196535009920373646',
+            'email': 'example@gmail.com',
+            'email_verified': True,
+            'at_hash': 'some_hash',
+            'iat': 1730201518,
+            'exp': 1730205118
+            }
         """
 
         logger.debug(
