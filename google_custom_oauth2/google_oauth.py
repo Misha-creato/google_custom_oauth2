@@ -146,12 +146,12 @@ class GoogleOAuth:
             Status code and data dict
             200,
             {
-            'access_token': 'access_token',
-            'expires_in': 1000,
-            'refresh_token': 'refresh_token',
-            'scope': 'https://www.googleapis.com/auth/userinfo.email openid',
-            'token_type': 'Bearer',
-            'id_token': 'id_token'
+                'access_token': 'access_token',
+                'expires_in': 1000,
+                'refresh_token': 'refresh_token',
+                'scope': 'https://www.googleapis.com/auth/userinfo.email openid',
+                'token_type': 'Bearer',
+                'id_token': 'id_token'
             }
         """
 
@@ -184,10 +184,10 @@ class GoogleOAuth:
             Status code and data dict
             200,
             {
-            'id': '12345',
-            'email': 'example@gmail.com',
-            'verified_email': True,
-            'picture': 'https://lh3.googleusercontent.com/picture_path'
+                'id': '12345',
+                'email': 'example@gmail.com',
+                'verified_email': True,
+                'picture': 'https://lh3.googleusercontent.com/picture_path'
             }
         """
 
@@ -216,15 +216,15 @@ class GoogleOAuth:
             Status code and data dict
             200,
             {
-            'iss': 'https://accounts.google.com',
-            'azp': 'somestring.apps.googleusercontent.com',
-            'aud': 'somestring.apps.googleusercontent.com',
-            'sub': '118196535009920373646',
-            'email': 'example@gmail.com',
-            'email_verified': True,
-            'at_hash': 'some_hash',
-            'iat': 1730201518,
-            'exp': 1730205118
+                'iss': 'https://accounts.google.com',
+                'azp': 'somestring.apps.googleusercontent.com',
+                'aud': 'somestring.apps.googleusercontent.com',
+                'sub': '118196535009920373646',
+                'email': 'example@gmail.com',
+                'email_verified': True,
+                'at_hash': 'some_hash',
+                'iat': 1730201518,
+                'exp': 1730205118
             }
         """
 
