@@ -5,6 +5,7 @@ import jwt
 
 from jwt.algorithms import RSAAlgorithm
 
+
 logger = logging.getLogger(__name__)
 
 
